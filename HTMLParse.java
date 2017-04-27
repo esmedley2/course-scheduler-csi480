@@ -5,13 +5,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.awt.*;
 
 public class HTMLParse {
 	
-	public HTMLParse(String semester, ArrayList<String> dept) {
-		
-		ArrayList<String> catalog = new ArrayList<String>();
+	private ArrayList<String> catalog = new ArrayList<String>();
+	
+	public HTMLParse(String semester, ArrayList<String> dept, ArrayList<String> deptCode) {
 		
 		try {
 			
@@ -22,31 +24,44 @@ public class HTMLParse {
 				Scanner f_in = new Scanner(url.openStream());
 				
 				String currentDept = dept.get(i);
+				String currentDeptCode = deptCode.get(i);
 				String temp;
 				
-				f_in.useDelimiter("<PRE>"); //TODO: change?
+				catalog.add("Classes in department: " +  currentDept);
+				
+				f_in.useDelimiter("<PRE>");
 				while (f_in.hasNext()) {
-					//System.out.println(f_in.next());
 					temp = f_in.next();
 					if (temp.contains(currentDept)) {
-
-					
-					}
+						String[] courses = temp.split("blank\">|<span|<TR>|</SPAN");
+						for (String string : courses) {
+							if (string.startsWith(currentDeptCode)) {
+								catalog.add(string);
+								System.out.println(string);
+								System.out.println();
+							}
+						}
+ 					}
 				}
-				
-				f_in.close();
-			}
-			
-	
+
+				catalog.add("End courses in department: " + currentDept);
+				f_in.close();				
+			}			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 	
+	public ArrayList<String> getCatalog() {
+		return catalog;
+	}
+	/*
+	 * Tester:
 	public static void main(String[] args) {
 		ArrayList<String> depts = new ArrayList<String>();
+		ArrayList<String> deptCodes = new ArrayList<String>();
+		deptCodes.add("ANT");
 		depts.add("ANTHROPOLOGY");
-;		HTMLParse test = new HTMLParse("17FA", depts);
-	}
+		HTMLParse test = new HTMLParse("16FA", depts, deptCodes);
+	}*/
 }
